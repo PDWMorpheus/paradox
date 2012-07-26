@@ -1,0 +1,1 @@
+ALTER TABLE `account`  ADD COLUMN `vp` INT(11) NOT NULL DEFAULT '0' AFTER `recruiter`;
