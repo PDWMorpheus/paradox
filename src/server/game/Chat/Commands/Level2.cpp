@@ -295,7 +295,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
 		{
 		Field* fields2_1 = result2_1->Fetch();
                 // Format string for each console vs. in-game.
-                if(m_sesson)
+                if(m_session)
 		    onlineStatus = "Online on |Hplayer:" + fields2_1[0].GetString() + "|h[" + fields2_1[0].GetString() + "]|h";
 		else
                     onlineStatus = "Online on [" + fields2_1[0].GetString() + "]";
@@ -405,7 +405,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
 	email = email.empty() ? "No Email Specified" : accFields[1].GetString();
 
     // Format output for console vs. game.
-    if(m_sesson)
+    if(m_session)
     {
 	PSendSysMessage("|Hplayer:%s|h[%s]|h (GUID: %u) last logged in at %s, from %s Currently: %s", pName.c_str(), pName.c_str(), playerGUID, lastLogin.c_str(), ip.c_str(), onlineStatus.c_str());
 	PSendSysMessage("Account: %s (ID: %u) Account Level: %u" , account.c_str(), accID, accountLevel);
