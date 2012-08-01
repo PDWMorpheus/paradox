@@ -22,6 +22,7 @@ Comment: All gobject related commands
 Category: commandscripts
 EndScriptData */
 
+#include "AccountMgr.h"
 #include "ScriptMgr.h"
 #include "GameEventMgr.h"
 #include "ObjectMgr.h"
@@ -63,6 +64,35 @@ public:
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         return commandTable;
+    }
+
+    bool CanSelectGobject(uint32 id)
+    {
+        if (IsAdmin())
+            return true;
+
+        QueryResult result = WorldDatabase.PQuery("SELECT owner FROM gameobject WHERE guid = %u", id);
+        if (!result)
+            return false;
+
+        Field* fields = result->Fetch();
+        uint32 ownerID = fields[0].GetUInt32();
+
+        if( ownerID == 0 && GetSession()->GetSecurity() >= SEC_MODERATOR )
+            return true;
+
+        if ((ownerID == GetSession()->GetAccountId()) || IsAdmin())
+            return true;
+
+        uint32 ownerSec = AccountMgr::GetSecurity(accId);
+
+        if ( !ownerSec && ( GetSession()->GetSecurity() ) )
+            return true;
+
+        if ( ownerSec > GetSession()->GetSecurity() )
+            return false;
+
+        return false;
     }
 
     static bool HandleGameObjectActivateCommand(ChatHandler* handler, const char* args)
@@ -588,6 +618,7 @@ public:
         uint32 guid = 0;
         WorldObject* obj = handler->GetNearbyGameObject();
 
+
         if (!*args)
         {
             if (obj)
@@ -604,7 +635,13 @@ public:
         name = goinfo->name;
         guid = obj->ToGameObject()->GetGUIDLow();
 
-		handler->PSendSysMessage("Selected GameObject [ %s ](ID: %u) which is %.3f meters away from you.", name.c_str(), entry, handler->GetSession()->GetPlayer()->GetDistance(obj));
+        if(!CanSelectGobject(guid))
+        {
+            handler->PSendSysMessage("No selectable objects in range or you do not own the objects.");
+            handler->SetSentErrorMessage(true);
+        }
+
+        handler->PSendSysMessage("Selected GameObject [ %s ](ID: %u)(GUID: %u) which is %.3f meters away from you.", name.c_str(), entry, guid, handler->GetSession()->GetPlayer()->GetDistance(obj));
         handler->GetSession()->GetPlayer()->SetSelectedGobject(guid); //Everything checks out, select the object.
         return true;
     }
