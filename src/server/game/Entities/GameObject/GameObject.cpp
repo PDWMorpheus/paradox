@@ -713,7 +713,68 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask, int o
     WorldDatabase.CommitTransaction(trans);
 }
 
-void GameObject::TempSaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
+void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
+{
+    const GameObjectTemplate *goI = GetGOInfo();
+
+    if (!goI)
+        return;
+
+    if (!m_DBTableGuid)
+        m_DBTableGuid = GetGUIDLow();
+    // update in loaded data (changing data only in this place)
+    GameObjectData& data = sObjectMgr->NewGOData(m_DBTableGuid);
+
+    // data->guid = guid don't must be update at save
+    data.id = GetEntry();
+    data.mapid = mapid;
+    data.phaseMask = phaseMask;
+    data.posX = GetPositionX();
+    data.posY = GetPositionY();
+    data.posZ = GetPositionZ();
+    data.orientation = GetOrientation();
+    data.rotation0 = GetFloatValue(GAMEOBJECT_PARENTROTATION+0);
+    data.rotation1 = GetFloatValue(GAMEOBJECT_PARENTROTATION+1);
+    data.rotation2 = GetFloatValue(GAMEOBJECT_PARENTROTATION+2);
+    data.rotation3 = GetFloatValue(GAMEOBJECT_PARENTROTATION+3);
+    data.spawntimesecs = m_spawnedByDefault ? m_respawnDelayTime : -(int32)m_respawnDelayTime;
+    data.animprogress = GetGoAnimProgress();
+    data.go_state = GetGoState();
+    data.spawnMask = spawnMask;
+    data.artKit = GetGoArtKit();
+    int tempspawn = 0;
+    int ownerID = 0;
+
+    // updated in DB
+    std::ostringstream ss;
+    ss << "INSERT INTO gameobject (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `tempspawn`, `owner`) VALUES ("
+        << m_DBTableGuid << ", "
+        << GetEntry() << ", "
+        << mapid << ", "
+        << uint32(spawnMask) << ", "                         // cast to prevent save as symbol
+        << uint16(GetPhaseMask()) << ", "                    // prevent out of range error
+        << GetPositionX() << ", "
+        << GetPositionY() << ", "
+        << GetPositionZ() << ", "
+        << GetOrientation() << ", "
+        << GetFloatValue(GAMEOBJECT_PARENTROTATION) << ", "
+        << GetFloatValue(GAMEOBJECT_PARENTROTATION+1) << ", "
+        << GetFloatValue(GAMEOBJECT_PARENTROTATION+2) << ", "
+        << GetFloatValue(GAMEOBJECT_PARENTROTATION+3) << ", "
+        << m_respawnDelayTime << ", "
+        << uint32(GetGoAnimProgress()) << ", "
+        << uint32(GetGoState()) << ", "
+        << tempspawn << ", "
+        << ownerID << ")";
+        
+
+    SQLTransaction trans = WorldDatabase.BeginTransaction();
+    trans->PAppend("DELETE FROM gameobject WHERE guid = '%u'", m_DBTableGuid);
+    trans->Append(ss.str().c_str());
+    WorldDatabase.CommitTransaction(trans);
+}
+
+void GameObject::TempSaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask, int ownerID)
 {
     const GameObjectTemplate *goI = GetGOInfo();
 
@@ -746,7 +807,7 @@ void GameObject::TempSaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
 
     // updated in DB
     std::ostringstream ss;
-    ss << "INSERT INTO gameobject VALUES ("
+    ss << "INSERT INTO gameobject (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `tempspawn`, `owner`) VALUES ("
         << m_DBTableGuid << ", "
         << GetEntry() << ", "
         << mapid << ", "
@@ -763,7 +824,8 @@ void GameObject::TempSaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
         << m_respawnDelayTime << ", "
         << uint32(GetGoAnimProgress()) << ", "
         << uint32(GetGoState()) << ", "
-        << tempspawn << ")";
+        << tempspawn << ", "
+        << ownerID << ")";
 
     SQLTransaction trans = WorldDatabase.BeginTransaction();
     trans->PAppend("DELETE FROM gameobject WHERE guid = '%u'", m_DBTableGuid);

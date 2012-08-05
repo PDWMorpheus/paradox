@@ -32,6 +32,35 @@ EndScriptData */
 #include "Chat.h"
 #include <string>
 
+bool CanSelectGobject(bool isAdm, uint32 accID, int sSecurity, uint32 id)
+{
+    if (isAdm)
+        return true;
+
+    QueryResult result = WorldDatabase.PQuery("SELECT owner FROM gameobject WHERE guid = %u", id);
+    if (!result)
+        return false;
+
+    Field* fields = result->Fetch();
+    uint32 ownerID = fields[0].GetUInt32();
+
+    if( ownerID == 0 && sSecurity >= SEC_MODERATOR )
+        return true;
+
+    if (ownerID == accID || isAdm )
+        return true;
+
+    uint32 ownerSec = sAccountMgr->GetSecurity(ownerID);
+    
+    if ( !ownerSec && ( sSecurity ) )
+        return true;
+
+    if ( ownerSec > sSecurity )
+        return false;
+
+	 return false;
+}
+
 class gobject_commandscript : public CommandScript
 {
 public:
@@ -67,34 +96,6 @@ public:
         return commandTable;
     }
 
-    bool CanSelectGobject(uint32 id)
-    {
-        if (IsAdmin())
-            return true;
-
-        QueryResult result = WorldDatabase.PQuery("SELECT owner FROM gameobject WHERE guid = %u", id);
-        if (!result)
-            return false;
-
-        Field* fields = result->Fetch();
-        uint32 ownerID = fields[0].GetUInt32();
-
-        if( ownerID == 0 && GetSession()->GetSecurity() >= SEC_MODERATOR )
-            return true;
-
-        if ((ownerID == GetSession()->GetAccountId()) || IsAdmin())
-            return true;
-
-        uint32 ownerSec = AccountMgr::GetSecurity(accId);
-
-        if ( !ownerSec && ( GetSession()->GetSecurity() ) )
-            return true;
-
-        if ( ownerSec > GetSession()->GetSecurity() )
-            return false;
-
-        return false;
-    }
 
     static bool HandleGameObjectActivateCommand(ChatHandler* handler, const char* args)
     {
@@ -639,17 +640,22 @@ public:
         name = goinfo->name;
         guid = obj->ToGameObject()->GetGUIDLow();
 
-        if(CanSelectGobject(guid))
+		std::string ownerString = "";
+        if(CanSelectGobject(handler->GetSession()->GetPlayer()->IsAdmin(), handler->GetSession()->GetAccountId(), handler->GetSession()->GetSecurity(), guid))
         {
-        	handler->PSendSysMessage("Selected GameObject [ %s ](ID: %u)(GUID: %u) which is %.3f meters away from you.", name.c_str(), entry, guid, handler->GetSession()->GetPlayer()->GetDistance(obj));
-        	handler->GetSession()->GetPlayer()->SetSelectedGobject(guid); //Everything checks out, select the object.
-        	if(GetSession->GetSecurity() => SEC_GAMEMASTER)
+        	if(handler->GetSession()->GetSecurity() >= SEC_GAMEMASTER)
 			{
+				Field* fields;
+				QueryResult owner = WorldDatabase.PQuery("SELECT owner FROM gameobject WHERE guid = %u", guid);
+				fields = owner->Fetch();
+				uint32 ownerID = fields[0].GetUInt32();
 				QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = %u;", ownerID);
-				Fields * field = result.Fetch();
-				std::string ownerAcc = field[0].GetString();
-				handler->PSendSysMessage("Object owned by %s.", ownerAcc.c_str());
-}
+				fields = result->Fetch();
+				ownerString = "(Owner: " + fields[0].GetString() + ")";
+			}
+        	handler->PSendSysMessage("Selected GameObject [ %s ](ID: %u)(GUID: %u)%s which is %.3f meters away from you.", name.c_str(), entry, guid, ownerString, handler->GetSession()->GetPlayer()->GetDistance(obj));
+        	handler->GetSession()->GetPlayer()->SetSelectedGobject(guid); //Everything checks out, select the object.
+        	
         	return true;
         }
     }
