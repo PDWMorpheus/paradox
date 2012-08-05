@@ -19,6 +19,7 @@
 #include "Common.h"
 #include "QuestDef.h"
 #include "GameObjectAI.h"
+#include "AccountMgr.h"
 #include "ObjectMgr.h"
 #include "GroupMgr.h"
 #include "PoolMgr.h"
@@ -652,7 +653,7 @@ void GameObject::SaveToDB()
     SaveToDB(GetMapId(), data->spawnMask, data->phaseMask);
 }
 
-void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
+void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask, int ownerID)
 {
     const GameObjectTemplate *goI = GetGOInfo();
 
@@ -685,7 +686,7 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
 
     // updated in DB
     std::ostringstream ss;
-    ss << "INSERT INTO gameobject VALUES ("
+    ss << "INSERT INTO gameobject (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `tempspawn`, `owner`) VALUES ("
         << m_DBTableGuid << ", "
         << GetEntry() << ", "
         << mapid << ", "
@@ -702,7 +703,9 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
         << m_respawnDelayTime << ", "
         << uint32(GetGoAnimProgress()) << ", "
         << uint32(GetGoState()) << ", "
-        << tempspawn << ")";
+        << tempspawn << ", "
+        << ownerID << ")";
+        
 
     SQLTransaction trans = WorldDatabase.BeginTransaction();
     trans->PAppend("DELETE FROM gameobject WHERE guid = '%u'", m_DBTableGuid);

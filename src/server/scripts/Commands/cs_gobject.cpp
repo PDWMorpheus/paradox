@@ -30,6 +30,7 @@ EndScriptData */
 #include "PoolMgr.h"
 #include "MapManager.h"
 #include "Chat.h"
+#include <string>
 
 class gobject_commandscript : public CommandScript
 {
@@ -203,12 +204,15 @@ public:
             pGameObj->SetRespawnTime(value);
             //sLog->outDebug(LOG_FILTER_TSCR, "*** spawntimeSecs: %d", value);
         }
+        
+        // Get account ID to fill owner column.
+        int ownerID = handler->GetSession()->GetAccountId();
 
         // fill the gameobject data and save to the db
 		if (save && handler->GetSession()->GetSecurity() > SEC_PLAYER)
-                pGameObj->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()),chr->GetPhaseMaskForSpawn());
+                pGameObj->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()),chr->GetPhaseMaskForSpawn(), ownerID);
 		else              
-				pGameObj->TempSaveToDB(map->GetId(), (1 << map->GetSpawnMode()),chr->GetPhaseMaskForSpawn());
+				pGameObj->TempSaveToDB(map->GetId(), (1 << map->GetSpawnMode()),chr->GetPhaseMaskForSpawn(), ownerID);
 
         // this will generate a new guid if the object is in an instance
         if (!pGameObj->LoadFromDB(db_lowGUID, map))
@@ -635,15 +639,19 @@ public:
         name = goinfo->name;
         guid = obj->ToGameObject()->GetGUIDLow();
 
-        if(!CanSelectGobject(guid))
+        if(CanSelectGobject(guid))
         {
-            handler->PSendSysMessage("No selectable objects in range or you do not own the objects.");
-            handler->SetSentErrorMessage(true);
+        	handler->PSendSysMessage("Selected GameObject [ %s ](ID: %u)(GUID: %u) which is %.3f meters away from you.", name.c_str(), entry, guid, handler->GetSession()->GetPlayer()->GetDistance(obj));
+        	handler->GetSession()->GetPlayer()->SetSelectedGobject(guid); //Everything checks out, select the object.
+        	if(GetSession->GetSecurity() => SEC_GAMEMASTER)
+			{
+				QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = %u;", ownerID);
+				Fields * field = result.Fetch();
+				std::string ownerAcc = field[0].GetString();
+				handler->PSendSysMessage("Object owned by %s.", ownerAcc.c_str());
+}
+        	return true;
         }
-
-        handler->PSendSysMessage("Selected GameObject [ %s ](ID: %u)(GUID: %u) which is %.3f meters away from you.", name.c_str(), entry, guid, handler->GetSession()->GetPlayer()->GetDistance(obj));
-        handler->GetSession()->GetPlayer()->SetSelectedGobject(guid); //Everything checks out, select the object.
-        return true;
     }
 
     static bool HandleGameObjectSetStateCommand(ChatHandler* handler, const char* args)
