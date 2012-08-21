@@ -150,7 +150,7 @@ public:
 			return true;
 		}
 */
-        if(sDisableMgr->IsDisabledFor(DISABLE_TYPE_ZONE, handler->GetSession()->GetPlayer()->GetZoneID(), handler->GetSession()->GetPlayer()) && !handler->GetSession()->GetPlayer()->IsAdmin())
+        if(sDisableMgr->IsDisabledFor(DISABLE_TYPE_ZONE, handler->GetSession()->GetPlayer()->GetZoneId(), handler->GetSession()->GetPlayer()) && !handler->GetSession()->GetPlayer()->IsAdmin())
         {
             handler->SendSysMessage("Spawning is prohibited in this zone.");
             handler->SetSentErrorMessage(true);
