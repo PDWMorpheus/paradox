@@ -658,8 +658,13 @@ public:
 				fields = owner->Fetch();
 				uint32 ownerID = fields[0].GetUInt32();
 				QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = %u;", ownerID);
+				if(result)
+				{
 				fields = result->Fetch();
 				ownerString = "(Owner: " + fields[0].GetString() + ")";
+				}
+				else
+				ownerString = "(Owner: none)";
 
 			}
         	handler->PSendSysMessage("Selected GameObject [ %s ] (ID: %u) (GUID: %u) %s which is %.3f meters away from you.", name.c_str(), entry, guid, ownerString.c_str(), handler->GetSession()->GetPlayer()->GetDistance(obj));
