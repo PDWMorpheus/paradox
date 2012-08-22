@@ -34,17 +34,16 @@ EndScriptData */
 
 bool CanSelectGobject(bool isAdm, uint32 accID, int sSecurity, uint32 id)
 {
-	sLog->outString("Started CanSelect function.");
     if (isAdm)
         return true;
-	sLog->outString("Error in query");
+        
     QueryResult result = WorldDatabase.PQuery("SELECT owner FROM gameobject WHERE guid = %u", id);
     if (!result)
         return false;
-	sLog->outString("Error after result");
+
     Field* fields = result->Fetch();
     uint32 ownerID = fields[0].GetUInt32();
-	sLog->outString("Made it through first query of CanSlect.");
+
     if( ownerID == 0 && sSecurity >= SEC_MODERATOR )
         return true;
 
@@ -52,10 +51,10 @@ bool CanSelectGobject(bool isAdm, uint32 accID, int sSecurity, uint32 id)
         return true;
 
     uint32 ownerSec = sAccountMgr->GetSecurity(ownerID);
-    sLog->outString("Error not here");
+
     if ( !ownerSec && ( sSecurity ) )
         return true;
-	sLog->outString("Error not here 2");
+
     if ( ownerSec > sSecurity )
         return false;
 
@@ -653,7 +652,7 @@ public:
         {
         	if(handler->GetSession()->GetSecurity() >= SEC_GAMEMASTER)
 			{
-				sLog->outString("gobject select. Made it to admin info");
+
 				Field* fields;
 				QueryResult owner = WorldDatabase.PQuery("SELECT owner FROM gameobject WHERE guid = %u", guid);
 				fields = owner->Fetch();
@@ -661,11 +660,11 @@ public:
 				QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = %u;", ownerID);
 				fields = result->Fetch();
 				ownerString = "(Owner: " + fields[0].GetString() + ")";
-				sLog->outString("Finished all admin info");
+
 			}
         	handler->PSendSysMessage("Selected GameObject [ %s ] (ID: %u) (GUID: %u) %s which is %.3f meters away from you.", name.c_str(), entry, guid, ownerString.c_str(), handler->GetSession()->GetPlayer()->GetDistance(obj));
         	handler->GetSession()->GetPlayer()->SetSelectedGobject(guid); //Everything checks out, select the object.
-        	sLog->outString("Everything ran.");
+
         	return true;
         }
         else
