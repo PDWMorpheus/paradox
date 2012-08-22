@@ -34,6 +34,9 @@ EndScriptData */
 
 bool CanSelectGobject(bool isAdm, uint32 accID, int sSecurity, uint32 id)
 {
+	if(id == 0)
+		return false;
+
     if (isAdm)
         return true;
         
