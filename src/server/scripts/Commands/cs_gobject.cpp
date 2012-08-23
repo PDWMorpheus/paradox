@@ -145,13 +145,6 @@ public:
         if (!*args)
             return false;
 
-                // Keeping for backup
-/*		if (WorldDatabase.PQuery("SELECT * FROM disables WHERE sourcetype='%u' AND entry='%u'",DISABLE_TYPE_ZONE,handler->GetSession()->GetPlayer()->GetZoneId())  && !handler->GetSession()->GetPlayer()->IsAdmin())
-		{
-			handler->SendSysMessage("Spawning is prohibited in this zone.");
-			return true;
-		}
-*/
         if(sDisableMgr->IsDisabledFor(DISABLE_TYPE_ZONE, handler->GetSession()->GetPlayer()->GetZoneId(), handler->GetSession()->GetPlayer()) && !handler->GetSession()->GetPlayer()->IsAdmin())
         {
             handler->SendSysMessage("Spawning is prohibited in this zone.");

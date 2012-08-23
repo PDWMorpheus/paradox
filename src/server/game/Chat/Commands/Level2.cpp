@@ -265,7 +265,6 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
 	uint32 accID = fields[0].GetUInt32();
 	uint32 playerGUID = fields[1].GetUInt64();
 	pName = fields[2].GetString();
-	sLog->outString("ChatHandler::HandlePInfoCommand(): Character DB query is fine.");
 
     //												   0		 1		2		 3
 	QueryResult result1 = LoginDatabase.PQuery("SELECT username, email, last_ip, last_login FROM account WHERE id = %u", accID);
@@ -278,6 +277,11 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
 	std::string lastLogin = accFields[3].GetString();
 	
 	uint32 ip = inet_addr(lastIP.c_str());
+	
+#if TRINITY_ENDIAN == BIGENDIAN
+        EndianConvertReverse(ip);
+#endif
+
 	QueryResult ip2nation = WorldDatabase.PQuery("SELECT c.country FROM ip2nationCountries c, ip2nation i WHERE i.ip < %u AND c.code = i.country ORDER BY i.ip DESC LIMIT 0,1", ip);
 	if(ip2nation)
 	{

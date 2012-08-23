@@ -101,13 +101,14 @@ public:
     #define TIME_BETWEEN_SPAWNS_MILLIS 15000
 	static bool HandleDetermineNpcSpawn(ChatHandler* handler, const char* args)
     {
-		if (WorldDatabase.PQuery("SELECT * FROM disables WHERE sourcetype='%u' AND entry='%u'",DISABLE_TYPE_ZONE,handler->GetSession()->GetPlayer()->GetZoneId())  && !handler->GetSession()->GetPlayer()->IsAdmin())
-		{
-			handler->SendSysMessage("Spawning is prohibited in this zone.");
-			return true;
-		}
+	    if(sDisableMgr->IsDisabledFor(DISABLE_TYPE_ZONE, handler->GetSession()->GetPlayer()->GetZoneId(), handler->GetSession()->GetPlayer()) && !handler->GetSession()->GetPlayer()->IsAdmin())
+        {
+            handler->SendSysMessage("Spawning is prohibited in this zone.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }	
 
-		if (handler->GetSession()->GetSecurity() == SEC_PLAYER)
+        if (handler->GetSession()->GetSecurity() == SEC_PLAYER)
 		{
 			int timeSinceLastSpawn = handler->GetSession()->GetPlayer()->m_lastSpawnTime - getMSTime();
 			if (timeSinceLastSpawn > -TIME_BETWEEN_SPAWNS_MILLIS && timeSinceLastSpawn < TIME_BETWEEN_SPAWNS_MILLIS)
