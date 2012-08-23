@@ -651,6 +651,7 @@ public:
         guid = obj->ToGameObject()->GetGUIDLow();
 
 		std::string ownerString = "";
+		uint32 ownerID;
         if(CanSelectGobject(handler->GetSession()->GetPlayer()->IsAdmin(), handler->GetSession()->GetAccountId(), handler->GetSession()->GetSecurity(), guid))
         {
         	if(handler->GetSession()->GetSecurity() >= SEC_GAMEMASTER)
@@ -658,8 +659,14 @@ public:
 
 				Field* fields;
 				QueryResult owner = WorldDatabase.PQuery("SELECT owner FROM gameobject WHERE guid = %u", guid);
+				if(!owner)
+				ownerID = 0;
+				else
+				{
 				fields = owner->Fetch();
-				uint32 ownerID = fields[0].GetUInt32();
+				ownerID = fields[0].GetUInt32();
+				}
+				
 				QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = %u;", ownerID);
 				if(result)
 				{
