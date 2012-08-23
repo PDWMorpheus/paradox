@@ -43,6 +43,7 @@
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "CreatureGroups.h"
 #include <sstream>
+#include "ace/INET_Addr.h"
 
 //mute player for some times
 bool ChatHandler::HandleMuteCommand(const char* args)
@@ -273,9 +274,16 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
 	Field* accFields = result1->Fetch();
 	std::string account = accFields[0].GetString();
 	std::string email = accFields[1].GetString();
-	std::string ip = accFields[2].GetString();
+	std::string lastIP = accFields[2].GetString();
 	std::string lastLogin = accFields[3].GetString();
-	sLog->outString("ChatHandler::HandlePInfoCommand(): Auth DB query is fine.");
+	
+	uint32 ip = inet_addr(lastIP.c_str());
+	QueryResult ip2nation = WorldDatabase.PQuery("SELECT c.country FROM ip2nationCountries c, ip2nation i WHERE i.ip < %u AND c.code = i.country ORDER BY i.ip DESC LIMIT 0,1", ip);
+	if(ip2nation)
+	{
+		Field* ipnation = ip2nation->Fetch();
+		lastIP = lastIP + " (" + ipnation[0].GetString() + ")";
+	}
     
     // Return online status
     QueryResult result2 = LoginDatabase.PQuery("SELECT online FROM account WHERE id=%u", accID);
@@ -407,7 +415,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     // Format output for console vs. game.
     if(m_session)
     {
-	PSendSysMessage("|Hplayer:%s|h[%s]|h (GUID: %u) last logged in at %s, from %s Currently: %s", pName.c_str(), pName.c_str(), playerGUID, lastLogin.c_str(), ip.c_str(), onlineStatus.c_str());
+	PSendSysMessage("|Hplayer:%s|h[%s]|h (GUID: %u) last logged in at %s, from %s Currently: %s", pName.c_str(), pName.c_str(), playerGUID, lastLogin.c_str(), lastIP.c_str(), onlineStatus.c_str());
 	PSendSysMessage("Account: %s (ID: %u) Account Level: %u" , account.c_str(), accID, accountLevel);
 	PSendSysMessage("Email: %s", email.c_str());
 	PSendSysMessage("Number of votes: %u Number of distinct IPs: %u", numVotes, numIP);
@@ -415,7 +423,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     }
     else
     {
-        PSendSysMessage("[%s] (GUID: %u) last logged in at %s, from %s Currently: %s", pName.c_str(), playerGUID, lastLogin.c_str(), ip.c_str(), onlineStatus.c_str());
+        PSendSysMessage("[%s] (GUID: %u) last logged in at %s, from %s Currently: %s", pName.c_str(), playerGUID, lastLogin.c_str(), lastIP.c_str(), onlineStatus.c_str());
         PSendSysMessage("Account: %s (ID: %u) Account Level: %u" , account.c_str(), accID, accountLevel);
         PSendSysMessage("Email: %s", email.c_str());
         PSendSysMessage("Number of votes: %u Number of distinct IPs: %u", numVotes, numIP);
