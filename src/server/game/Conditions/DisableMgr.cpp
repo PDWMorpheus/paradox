@@ -299,6 +299,11 @@ bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit const* pUnit
         case DISABLE_TYPE_OUTDOORPVP:
         case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
             return true;
+        case DISABLE_TYPE_ZONE:
+        	if(pUnit->IsAdmin())
+        		return false;
+        	else
+        		return true;
     }
 
     return false;
