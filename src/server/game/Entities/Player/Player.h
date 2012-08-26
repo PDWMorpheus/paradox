@@ -1143,6 +1143,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsAdmin();
         bool CanUseID(int type, uint32 id);
         void SetAnnounceColor(std::string color);
+        uint32 GetSecurity() { if(!GetSession()) return SEC_CONSOLE; else return GetSession()->GetSecurity(); }
         std::string GetAnnounceColor();
 
         bool m_cheatGod;

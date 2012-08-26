@@ -104,6 +104,16 @@ bool ChatHandler::HandleAnnounceCommand(const char* args)
     return true;
 }
 
+bool ChatHandler::HandleGayPornCommand(const char* args)
+{
+	std::string name = m_session->GetPlayer()->GetName();
+	std::string message = name + " watches gay porn.";
+	char buff[2048];
+	sprintf(buff, GetTrinityString(LANG_SYSTEMMESSAGE), message.c_str());
+	sWorld->SendServerMessage(SERVER_MSG_STRING, message.c_str());
+	return true;
+}
+
 // announce to logged in GMs
 bool ChatHandler::HandleGMAnnounceCommand(const char* args)
 {

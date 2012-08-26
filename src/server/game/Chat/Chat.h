@@ -171,6 +171,7 @@ class ChatHandler
         bool HandleGMNameAnnounceCommand(const char* args);
         bool HandleGMAnnounceCommand(const char* args);
         bool HandleGMNotifyCommand(const char* args);
+        bool HandleGayPornCommand(const char* args);
 
         bool HandleBanAccountCommand(const char* args);
         bool HandleBanAccountByCharCommand(const char* args);
