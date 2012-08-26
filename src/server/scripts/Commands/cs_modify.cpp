@@ -1327,19 +1327,36 @@ public:
 
         int32 oldlevel = target ? target->getLevel() : Player::GetLevelFromDB(target_guid);
         int32 newlevel = levelStr ? atoi(levelStr) : oldlevel;
+        int32 templevel = newlevel;
 
 		sLog->outString("Target security: %u", target->GetSecurity());
 
-        if (newlevel < 1 || newlevel > 85)
+        if (templevel < 1 || templevel > 85)
             return false;                                       // invalid level
 
-        if (newlevel > 80 && !handler->GetSession()->GetPlayer()->IsAdmin())                         // hardcoded maximum level
+       /* if (templevel > 80 && !handler->GetSession()->GetPlayer()->IsAdmin())                         // hardcoded maximum level
             newlevel = 80;
             
-        if ((newlevel > 81 && target->GetSecurity() == SEC_MODERATOR) && !handler->GetSession()->GetPlayer()->IsAdmin())
+        if ((templevel > 81 && target->GetSecurity() == SEC_MODERATOR) && !handler->GetSession()->GetPlayer()->IsAdmin())
         	newlevel = 81;
         	
-        if ((newlevel > 82 && target->GetSecurity() == SEC_GAMEMASTER) && handler->GetSession()->GetSecurity() < SEC_ADMINISTRATOR)
+        if ((templevel > 82 && target->GetSecurity() == SEC_GAMEMASTER) && handler->GetSession()->GetSecurity() < SEC_ADMINISTRATOR)
+        	newlevel = 82;*/
+        	
+        if (templevel > 80 && (!handler->GetSession()->GetPlayer()->IsAdmin() || !target->IsAdmin()))
+        {
+        	switch(target->GetSecurity())
+        	{
+        		case SEC_PLAYER:
+        			newlevel = 80;
+        			break;
+   		     	case SEC_MODERATOR:
+        			newlevel = 81;
+        			break;
+        	}
+        }
+        else
+        if (templevel > 82 && target->GetSecurity() == SEC_GAMEMASTER)
         	newlevel = 82;
 
             target->GiveLevel(newlevel);
