@@ -300,7 +300,7 @@ bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit const* pUnit
         case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
             return true;
         case DISABLE_TYPE_ZONE:
-        	Player const* playerUnit = pUnit->ToPlayer();
+        	Player* playerUnit = const_cast<Player*>(pUnit->ToPlayer());
         	if(playerUnit->IsAdmin())
         		return false;
         	else
