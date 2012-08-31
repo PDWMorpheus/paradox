@@ -3090,6 +3090,12 @@ void Spell::cast(bool skipCheck)
                 // triggered spell pointer can be not removed in some cases
                 m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
             }
+
+         // Set cooldown if cooldown cheat
+            if(m_caster->ToPlayer()->GetCommandStatus(CHEAT_COOLDOWN))
+                m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
+
+
             finish(false);
             SetExecutedCurrently(false);
             return;

@@ -865,6 +865,7 @@ enum CurrencyItems
 
 enum CommandNames
 {
+    CHEAT_NONE          = 0,
     CHEAT_GOD           = 1,
     CHEAT_CASTTIME      = 2,
     CHEAT_COOLDOWN      = 3,
