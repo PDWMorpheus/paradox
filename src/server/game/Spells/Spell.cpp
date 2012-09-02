@@ -2922,11 +2922,6 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     m_casttime = GetSpellCastTime(m_spellInfo, this);
     
     Player* p_caster = (Player*)m_caster;
-    if (p_caster->GetTypeId() == TYPEID_PLAYER)
-    {
-        if (p_caster->GetCommandStatus(CHEAT_CASTTIME))
-            m_casttime = 0;
-    }
 
     // don't allow channeled spells / spells with cast time to be casted while moving
     // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
@@ -2966,6 +2961,10 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         SendSpellStart();
 
                 TriggerGlobalCooldown();
+
+        if (p_caster->GetTypeId() == TYPEID_PLAYER)
+          if (p_caster->GetCommandStatus(CHEAT_CASTTIME))
+            m_casttime = 0;
 
         //item: first cast may destroy item and second cast causes crash
         if (!m_casttime && !m_spellInfo->StartRecoveryTime && !m_castItemGUID && GetCurrentContainer() == CURRENT_GENERIC_SPELL)
