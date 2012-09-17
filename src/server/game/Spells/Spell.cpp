@@ -2962,9 +2962,9 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
 
                 TriggerGlobalCooldown();
 
-        if (p_caster->GetTypeId() == TYPEID_PLAYER)
+        /*if (p_caster->GetTypeId() == TYPEID_PLAYER)
           if (p_caster->GetCommandStatus(CHEAT_CASTTIME))
-            m_casttime = 0;
+            m_casttime = 0;*/
 
         //item: first cast may destroy item and second cast causes crash
         if (!m_casttime && !m_spellInfo->StartRecoveryTime && !m_castItemGUID && GetCurrentContainer() == CURRENT_GENERIC_SPELL)
