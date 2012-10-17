@@ -246,6 +246,10 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     if(m_session)
         {	
         target = m_session->GetPlayer()->GetSelectedPlayer();
+          if(!m_session->GetPlayer()->IsAdmin())
+          {
+            target = m_session->GetPlayer();
+          }
 	if (!target && !*args)
 		return false;
         }
