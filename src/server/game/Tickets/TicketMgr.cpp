@@ -163,7 +163,7 @@ std::string GmTicket::FormatMessageString(ChatHandler& handler, const char* szCl
 {
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, _playerName.c_str());
+    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, _playerName.c_str(), _playerName.c_str());
     if (szClosedName)
         ss << handler.PGetParseString(LANG_COMMAND_TICKETCLOSED, szClosedName);
     if (szAssignedToName)
