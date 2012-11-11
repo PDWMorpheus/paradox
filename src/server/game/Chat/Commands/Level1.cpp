@@ -75,6 +75,7 @@ bool ChatHandler::HandleNameAnnounceCommand(const char* args)
         annColor = "|cffffff00";
     
     sWorld->SendWorldText(strid, m_session->GetPlayer()->GetName(), m_session->GetPlayer()->GetName(), annColor.c_str(), args);
+    sLog->outChat("[ANNOUNCE] Player %s (sec level: %u) announces: %s", m_session->GetPlayer()->GetName, m_session->GetSecurity(), args); 
     return true;
 }
 
