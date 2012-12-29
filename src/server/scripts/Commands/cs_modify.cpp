@@ -1300,9 +1300,21 @@ public:
 
     static bool HandleCharacterLevelCommand(ChatHandler* handler, const char *args)
     {
+
+        if(!args)
+            return false;
+
         char* nameStr;
         char* levelStr;
-        handler->extractOptFirstArg((char*)args,&nameStr,&levelStr);
+
+        levelStr = strtok ((char*)args, " ");
+        if (isalpha(levelStr[0]))
+        {
+            nameStr = levelStr;
+            levelStr = strtok (NULL, " ");
+        }
+
+        /*handler->extractOptFirstArg((char*)args,&nameStr,&levelStr);
         if (!levelStr)
             return false;
 
@@ -1311,7 +1323,7 @@ public:
         {
             nameStr = levelStr;
             levelStr = NULL;                                    // current level will used
-        }
+        }*/
 
         Player* target;
         uint64 target_guid;
