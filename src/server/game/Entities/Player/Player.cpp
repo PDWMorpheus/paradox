@@ -24737,8 +24737,8 @@ bool Player::GetCommandStatus(int command)
         break;
     case CHEAT_CASTTIME: return m_cheatCastTime;
         break;
-    //case CHEAT_COOLDOWN: return m_cheatCoolDown;
-    //    break;
+    case CHEAT_COOLDOWN: return m_cheatCoolDown;
+        break;
     case CHEAT_FLY: return m_cheatFly;
         break;
     case CHEAT_POWER: return m_cheatPower;

@@ -1318,14 +1318,14 @@ public:
 
         if (!levelStr || !atoi(levelStr))
         {
-            handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->PSendSysMessage("Invalid level or no level provided.");
             handler->SetSentErrorMessage(true);
             return false;
         }
 
         if(!sObjectAccessor->FindPlayerByName(nameStr))
         {
-            handler->PSendSysMessage("Player not found or player does not exist.");
+            handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
             handler->SetSentErrorMessage(true);
             return false;
         }

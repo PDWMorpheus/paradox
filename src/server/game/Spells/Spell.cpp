@@ -2922,6 +2922,9 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     m_casttime = GetSpellCastTime(m_spellInfo, this);
     
     Player* p_caster = (Player*)m_caster;
+    if (p_caster->GetTypeId() == TYPEID_PLAYER)
+        if (p_caster->GetCommandStatus(CHEAT_CASTTIME))
+            m_casttime = 0;
 
     // don't allow channeled spells / spells with cast time to be casted while moving
     // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
@@ -2960,11 +2963,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         m_caster->SetCurrentCastedSpell(this);
         SendSpellStart();
 
-                TriggerGlobalCooldown();
-
-        if (p_caster->GetTypeId() == TYPEID_PLAYER)
-          if (p_caster->GetCommandStatus(CHEAT_CASTTIME))
-            m_casttime = 0;
+        TriggerGlobalCooldown();
 
         //item: first cast may destroy item and second cast causes crash
         if (!m_casttime && !m_spellInfo->StartRecoveryTime && !m_castItemGUID && GetCurrentContainer() == CURRENT_GENERIC_SPELL)
@@ -3233,11 +3232,13 @@ void Spell::cast(bool skipCheck)
     }
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
 
-    // Set cooldown if cooldown cheat
-    if(m_caster->ToPlayer()->GetCommandStatus(CHEAT_COOLDOWN))
-        m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
+        // Set cooldown if cooldown cheat
+        if(m_caster->ToPlayer()->GetCommandStatus(CHEAT_COOLDOWN))
+            m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
+    }
 
     SetExecutedCurrently(false);
 }
