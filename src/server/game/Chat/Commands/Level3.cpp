@@ -5023,7 +5023,7 @@ bool ChatHandler::HandleCastTimeCheatCommand(const char* args)
 
 bool ChatHandler::HandleCoolDownCheatCommand(const char* args)
 {
-	/*if (!m_session && !m_session->GetPlayer())
+	if (!m_session && !m_session->GetPlayer())
 		return false;
 
 	std::string argstr = (char*)args;
@@ -5049,8 +5049,8 @@ bool ChatHandler::HandleCoolDownCheatCommand(const char* args)
 		return true;
 	}
 	else
-		return false;*/
-	PSendSysMessage("This command is a work in progress. Sorry :'(.");
+		return false;
+	//PSendSysMessage("This command is a work in progress. Sorry :'(.");
 	return true;
 }
 
