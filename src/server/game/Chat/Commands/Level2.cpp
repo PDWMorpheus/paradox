@@ -347,7 +347,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
 	const int MIN_SEC = 60;
 
 	// Fetch time played in seconds
-	QueryResult played = CharacterDatabase.PQuery("SELECT sum(totaltime) FROM characters WHERE account=%u", accID);
+	QueryResult played = CharacterDatabase.PQuery("SELECT sum(totaltime) FROM characters WHERE account=%u OR deleteInfos_Account=%u", accID, accID);
 	if(!played)
 		return false;
 	Field *playtime = played->Fetch();
