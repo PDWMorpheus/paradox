@@ -3090,10 +3090,6 @@ void Spell::cast(bool skipCheck)
                 m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
             }
 
-         // Set cooldown if cooldown cheat
-            if(m_caster->ToPlayer()->GetCommandStatus(CHEAT_COOLDOWN))
-                m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
-
 
             finish(false);
             SetExecutedCurrently(false);
@@ -3238,6 +3234,10 @@ void Spell::cast(bool skipCheck)
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
+
+    // Set cooldown if cooldown cheat
+    if(m_caster->ToPlayer()->GetCommandStatus(CHEAT_COOLDOWN))
+        m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
 
     SetExecutedCurrently(false);
 }

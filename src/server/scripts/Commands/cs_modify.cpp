@@ -26,6 +26,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "DisableMgr.h"
 #include "Chat.h"
+#include "ObjectAccessor.h"
 
 class modify_commandscript : public CommandScript
 {
@@ -1315,6 +1316,20 @@ public:
             levelStr = strtok (NULL, " ");
         }
 
+        if (!levelStr || !atoi(levelStr))
+        {
+            handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if(!sObjectAccessor->FindPlayerByName(nameStr))
+        {
+            handler->PSendSysMessage("Player not found or player does not exist.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
         /*handler->extractOptFirstArg((char*)args,&nameStr,&levelStr);
         if (!levelStr)
             return false;
@@ -1342,7 +1357,6 @@ public:
         int32 newlevel = levelStr ? atoi(levelStr) : oldlevel;
         int32 templevel = newlevel;
 
-		sLog->outString("Target security: %u", target->GetSecurity());
 
         if (templevel < 1 || templevel > 85)
             return false;                                       // invalid level
