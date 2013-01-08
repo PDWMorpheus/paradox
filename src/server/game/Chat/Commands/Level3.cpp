@@ -3744,7 +3744,7 @@ bool ChatHandler::HandleVoterBlacklistCommand(const char* args)
     
     PSendSysMessage("Account with name \'%s\' added to blacklist for reason %s.", accountName.c_str(), reason.c_str());
     LoginDatabase.EscapeString(reason);
-    LoginDatabase.PExecute("INSERT INTO `blacklist` (`id`,`ip`,`blacklisted_by`,`reason`) VALUES (%u, \'%s\', \'%s\', \'%s\')", accountID, ip.c_str(), m_session->GetPlayer()->GetName(), reason.c_str());  
+    LoginDatabase.PExecute("INSERT INTO `blacklist` (`id`,`ip`,`blacklisted_by`,`reason`) VALUES (%u, \'%s\', \'%s\', \'%s\')", accountID, ip.c_str(), (m_session ? m_session->GetPlayer()->GetName() : "[Console]"), reason.c_str());  
     return true;
 }
 
