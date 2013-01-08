@@ -3680,8 +3680,10 @@ bool ChatHandler::HandleVoterBlacklistCommand(const char* args)
 
     Player* target;
     bool reasonEmpty = false;
-    std::string accountName = strtok((char*)args, " ");
-    std::string reason = strtok(NULL, "");
+    char* temp = strtok((char*)args, " ");
+    std::string accountName = temp ? temp : "";
+    temp = strtok(NULL, "");
+    std::string reason = temp ? temp : "";
     uint32 accountID = sAccountMgr->GetId(accountName);
 
     if(m_session)
@@ -3705,7 +3707,6 @@ bool ChatHandler::HandleVoterBlacklistCommand(const char* args)
         }
     }
 
-    if(reason)
         for(int i = 0; i < reason.length(); i++)
             if(std::isalpha(reason[i]))
             {
