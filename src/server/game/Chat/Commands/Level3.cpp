@@ -3679,10 +3679,10 @@ bool ChatHandler::HandleVoterBlacklistCommand(const char* args)
         return false;
 
     Player* target;
+    bool reasonEmpty = false;
     std::string accountName = strtok((char*)args, " ");
     std::string reason = strtok(NULL, "");
     uint32 accountID = sAccountMgr->GetId(accountName);
-
 
     if(m_session)
     {
@@ -3704,7 +3704,23 @@ bool ChatHandler::HandleVoterBlacklistCommand(const char* args)
            }
         }
     }
-    
+
+    if(reason)
+        for(int i = 0; i < reason.length(); i++)
+            if(std::isalpha(reason[i]))
+            {
+                reasonEmpty = false;
+                break;
+            }
+            else
+                reasonEmpty = true;
+   
+    if(reasonEmpty)
+   {
+        PSendSysMessage("No reason was specified. A reason must be provided");
+        return true;
+   }
+
     QueryResult result = LoginDatabase.PQuery("SELECT last_ip, username FROM account WHERE id = %u", accountID);
     if(!result)
         return false;
