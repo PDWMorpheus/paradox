@@ -448,8 +448,6 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
                 PSendSysMessage("Blacklisted on %s by %s", blacklistDate.c_str(), blacklistBy.c_str());
                 PSendSysMessage("Reason: %s", blacklistReason.c_str());
             }
-            else
-                PSendSysMessage("Blacklist: No");
 	    PSendSysMessage("Email: %s", email.c_str());
 	    PSendSysMessage("Number of votes: %u Number of distinct IPs: %u", numVotes, numIP);
 	    PSendSysMessage("Time played on account: %s", pTime.c_str());
@@ -463,8 +461,6 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
             PSendSysMessage("Blacklisted on %s by %s", blacklistDate.c_str(), blacklistBy.c_str());
             PSendSysMessage("Reason: %s", blacklistReason.c_str());
         }
-        else
-            PSendSysMessage("Blacklist: No");
         PSendSysMessage("Email: %s", email.c_str());
         PSendSysMessage("Number of votes: %u Number of distinct IPs: %u", numVotes, numIP);
         PSendSysMessage("Time played on account: %s", pTime.c_str());

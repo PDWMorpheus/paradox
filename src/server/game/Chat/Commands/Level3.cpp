@@ -3678,43 +3678,48 @@ bool ChatHandler::HandleVoterBlacklistCommand(const char* args)
     if(!args)
         return false;
 
+    std::string test = args;
+    if(test.empty())
+        return false;
+
     Player* target;
-    bool reasonEmpty = false;
+    bool reasonEmpty = true;
     char* temp = strtok((char*)args, " ");
+    if(!temp)
+        return false;
+
     std::string accountName = temp ? temp : "";
     temp = strtok(NULL, "");
     std::string reason = temp ? temp : "";
     uint32 accountID = sAccountMgr->GetId(accountName);
-
     if(m_session)
     {
         target = m_session->GetPlayer()->GetSelectedPlayer();
-        if(!target)
+        if(target && !accountID)
         {
-            if(!accountID)
-            {
-                PSendSysMessage("Account %s does not exist.", accountName.c_str());
-                return true;
-            }
-        }
-        else
-        {
-           if(!accountID)
-           {
-               accountID = target->GetSession()->GetAccountId();
-               reason = accountName + reason;
-           }
+            accountID = target->GetSession()->GetAccountId();
+            if(sAccountMgr->GetId(accountName) != accountID)
+                reason = accountName + reason;
         }
     }
 
+    if(!accountID)
+    {
+        PSendSysMessage("Account does not exist.");
+        return true;
+    }
+        
+    if(!reason.empty())
+    {
         for(int i = 0; i < reason.length(); i++)
-            if(std::isalpha(reason[i]))
+            if(!std::isspace(reason[i]))
             {
                 reasonEmpty = false;
                 break;
             }
             else
                 reasonEmpty = true;
+    }
    
     if(reasonEmpty)
    {
@@ -3737,10 +3742,9 @@ bool ChatHandler::HandleVoterBlacklistCommand(const char* args)
         return true;
     }
     
-        
-    LoginDatabase.PExecute("INSERT INTO `blacklist` (`id`,`ip`,`blacklisted_by`,`reason`) VALUES (%u, %s, %s, %s)", accountID, ip.c_str(), m_session->GetPlayer()->GetName(), reason.c_str()); 
-    
     PSendSysMessage("Account with name \'%s\' added to blacklist for reason %s.", accountName.c_str(), reason.c_str());
+    LoginDatabase.EscapeString(reason);
+    LoginDatabase.PExecute("INSERT INTO `blacklist` (`id`,`ip`,`blacklisted_by`,`reason`) VALUES (%u, \'%s\', \'%s\', \'%s\')", accountID, ip.c_str(), m_session->GetPlayer()->GetName(), reason.c_str());  
     return true;
 }
 
