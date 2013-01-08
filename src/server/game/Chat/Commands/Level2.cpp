@@ -281,6 +281,23 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
 	std::string lastLogin = accFields[3].GetString();
 	
 	uint32 ip = inet_addr(lastIP.c_str());
+    //                                                   0         1             2
+    result = LoginDatabase.PQuery("SELECT FROM_UNIXTIME(date), blacklisted_by, reason from blacklist WHERE id = %u", accID);
+    bool blacklisted;
+    std::string blacklistDate;
+    std::string blacklistBy;
+    std::string blacklistReason;
+    if(result)
+    {
+        Field* blacklist = result->Fetch();
+        blacklistDate = blacklist[0].GetString();
+        blacklistBy = blacklist[1].GetString();
+        blacklistReason = blacklist[2].GetString();
+        blacklisted = true;
+    }
+    else
+        blacklisted = false;
+    
 	
 #if TRINITY_ENDIAN == BIGENDIAN
         EndianConvertReverse(ip);
@@ -423,16 +440,31 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     // Format output for console vs. game.
     if(m_session)
     {
-	PSendSysMessage("|Hplayer:%s|h[%s]|h (GUID: %u) last logged in at %s, from %s Currently: %s", pName.c_str(), pName.c_str(), playerGUID, lastLogin.c_str(), lastIP.c_str(), onlineStatus.c_str());
-	PSendSysMessage("Account: %s (ID: %u) Account Level: %u" , account.c_str(), accID, accountLevel);
-	PSendSysMessage("Email: %s", email.c_str());
-	PSendSysMessage("Number of votes: %u Number of distinct IPs: %u", numVotes, numIP);
-	PSendSysMessage("Time played on account: %s", pTime.c_str());
+	    PSendSysMessage("|Hplayer:%s|h[%s]|h (GUID: %u) last logged in at %s, from %s Currently: %s", pName.c_str(), pName.c_str(), playerGUID, lastLogin.c_str(), lastIP.c_str(), onlineStatus.c_str());
+	    PSendSysMessage("Account: %s (ID: %u) Account Level: %u" , account.c_str(), accID, accountLevel);
+        if (m_session->GetPlayer()->IsAdmin()) 
+            if(blacklisted)
+            {
+                PSendSysMessage("Blacklisted on %s by %s", blacklistDate.c_str(), blacklistBy.c_str());
+                PSendSysMessage("Reason: %s", blacklistReason.c_str());
+            }
+            else
+                PSendSysMessage("Blacklist: No");
+	    PSendSysMessage("Email: %s", email.c_str());
+	    PSendSysMessage("Number of votes: %u Number of distinct IPs: %u", numVotes, numIP);
+	    PSendSysMessage("Time played on account: %s", pTime.c_str());
     }
     else
     {
         PSendSysMessage("[%s] (GUID: %u) last logged in at %s, from %s Currently: %s", pName.c_str(), playerGUID, lastLogin.c_str(), lastIP.c_str(), onlineStatus.c_str());
         PSendSysMessage("Account: %s (ID: %u) Account Level: %u" , account.c_str(), accID, accountLevel);
+        if(blacklisted)
+        {
+            PSendSysMessage("Blacklisted on %s by %s", blacklistDate.c_str(), blacklistBy.c_str());
+            PSendSysMessage("Reason: %s", blacklistReason.c_str());
+        }
+        else
+            PSendSysMessage("Blacklist: No");
         PSendSysMessage("Email: %s", email.c_str());
         PSendSysMessage("Number of votes: %u Number of distinct IPs: %u", numVotes, numIP);
         PSendSysMessage("Time played on account: %s", pTime.c_str());

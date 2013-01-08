@@ -3673,6 +3673,60 @@ bool ChatHandler::HandleBanListIPCommand(const char *args)
     return true;
 }
 
+bool ChatHandler::HandleVoterBlacklistCommand(const char* args)
+{
+    if(!args)
+        return false;
+
+    Player* target;
+    std::string accountName = strtok((char*)args, " ");
+    std::string reason = strtok(NULL, "");
+    uint32 accountID = sAccountMgr->GetId(accountName);
+
+
+    if(m_session)
+    {
+        target = m_session->GetPlayer()->GetSelectedPlayer();
+        if(!target)
+        {
+            if(!accountID)
+            {
+                PSendSysMessage("Account %s does not exist.", accountName.c_str());
+                return true;
+            }
+        }
+        else
+        {
+           if(!accountID)
+           {
+               accountID = target->GetSession()->GetAccountId();
+               reason = accountName + reason;
+           }
+        }
+    }
+    
+    QueryResult result = LoginDatabase.PQuery("SELECT last_ip, username FROM account WHERE id = %u", accountID);
+    if(!result)
+        return false;
+    
+    Field* lastIP = result->Fetch();
+    std::string ip = lastIP[0].GetString();
+    accountName = lastIP[1].GetString();
+
+    result = LoginDatabase.PQuery("SELECT * FROM blacklist WHERE id = %u", accountID);
+    if(result)
+    {
+        PSendSysMessage("Account already blacklisted");
+        return true;
+    }
+    
+        
+    LoginDatabase.PExecute("INSERT INTO `blacklist` (`id`,`ip`,`blacklisted_by`,`reason`) VALUES (%u, %s, %s, %s)", accountID, ip.c_str(), m_session->GetPlayer()->GetName(), reason.c_str()); 
+    
+    PSendSysMessage("Account with name \'%s\' added to blacklist for reason %s.", accountName.c_str(), reason.c_str());
+    return true;
+}
+
 bool ChatHandler::HandleRespawnCommand(const char* /*args*/)
 {
     Player* pl = m_session->GetPlayer();

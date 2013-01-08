@@ -183,6 +183,8 @@ class ChatHandler
         bool HandleBanListAccountCommand(const char* args);
         bool HandleBanListCharacterCommand(const char* args);
         bool HandleBanListIPCommand(const char* args);
+        
+        bool HandleVoterBlacklistCommand(const char* args);
 
         bool HandleCastCommand(const char *args);
         bool HandleCastBackCommand(const char *args);

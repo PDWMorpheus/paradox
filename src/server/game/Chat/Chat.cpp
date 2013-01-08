@@ -413,6 +413,7 @@ ChatCommand * ChatHandler::getCommandTable()
 
         { "aura",           SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleAuraCommand>,                "", NULL },
         { "unaura",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleUnAuraCommand>,              "", NULL },
+        { "blacklist",      SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleVoterBlacklistCommand>,      "", NULL },
         { "announce",       SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleNameAnnounceCommand>,        "", NULL },
         { "gmannounce",     SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleGMNameAnnounceCommand>,      "", NULL },
         { "systemannounce",  SEC_MODERATOR,      true,  OldHandler<&ChatHandler::HandleAnnounceCommand>,            "", NULL },
