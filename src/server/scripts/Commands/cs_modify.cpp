@@ -1309,6 +1309,10 @@ public:
         char* levelStr;
 
         levelStr = strtok ((char*)args, " ");
+
+        if(levelStr == NULL || *levelStr == '\0')
+            return false;
+
         nameStr = (char*)handler->GetSession()->GetPlayer()->GetName();
         if (isalpha(levelStr[0]))
         {
