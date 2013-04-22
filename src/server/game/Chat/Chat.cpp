@@ -852,8 +852,8 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand *table, const char* text, co
         // table[i].Name == "" is special case: send original command to handler
         if ((table[i].Handler)(this, strlen(table[i].Name) != 0 ? text : oldtext))
         {
-            if (table[i].SecurityLevel > SEC_PLAYER)
-            {
+//            if (table[i].SecurityLevel > SEC_PLAYER)
+//            {
                 // chat case
                 if (m_session)
                 {
@@ -863,7 +863,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand *table, const char* text, co
                         fullcmd.c_str(), p->GetName(), m_session->GetAccountId(), p->GetPositionX(), p->GetPositionY(), p->GetPositionZ(), p->GetMapId(),
                         GetLogNameForGuid(sel_guid), (p->GetSelectedUnit()) ? p->GetSelectedUnit()->GetName() : "", GUID_LOPART(sel_guid));
                 }
-            }
+//            }
         }
         // some commands have custom error messages. Don't send the default one in these cases.
         else if (!HasSentErrorMessage())
@@ -967,7 +967,7 @@ int ChatHandler::ParseCommands(const char* text)
 
     if (!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
     {
-        if (m_session && m_session->GetSecurity() == SEC_PLAYER)
+        if (m_session && m_session->GetSecurity() == SEC_PLAYER && sWorld->getBoolConfig(CONFIG_ALLOW_PLAYER_COMMANDS) == 0)
             return 0;
 
         SendSysMessage(LANG_NO_CMD);
